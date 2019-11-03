@@ -155,7 +155,7 @@ def show_products(payload, event):
 
     for temp_dict in template_dict.values():
         pprint(temp_dict)
-        page.send(event.sender_id, Template.Generic(temp_dict))
+        page.send(event.sender_id, Template.Generic(temp_dict, True))
 
     page.send(event.sender_id, "or explore categories",
               quick_replies=navigation)
@@ -180,7 +180,7 @@ def show_categories(payload, event):
 
     for temp_dict in template_dict.values():
         pprint(temp_dict)
-        page.send(event.sender_id, Template.Generic(temp_dict))
+        page.send(event.sender_id, Template.Generic(temp_dict, True))
 
 
 @page.callback(['PRODUCT_DESCRIPTION|0'])
