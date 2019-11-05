@@ -2,8 +2,15 @@ from models.categories import Category
 from models.products import Product
 from models.carts import Cart
 from models.messenger_user import MessengerUser
+from models.order import Order
+from pprint import pprint
 
 
-print(MessengerUser.get_id(3127097767305306))
-cart=Cart.get_cart(3127097767305306)
-cart.add_product(1,2)
+price = Order.get_price(2527394924012318)
+print("Price: ",price)
+print("calculator",726+8212.84)
+
+#checkout
+#list of products + price
+#total price 
+

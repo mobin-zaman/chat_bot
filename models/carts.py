@@ -29,7 +29,7 @@ class Cart(db.Model):
         cart = Cart.query.filter_by(user_id=user_id, ordered=0).first()
 
         if not cart:
-            cart=Cart(user_id)
+            cart = Cart(user_id)
             return cart
         else:
             return cart

@@ -1,6 +1,5 @@
 from db import db
 from sqlalchemy.dialects.mysql import BIGINT
-from models.products import Product
 
 
 class Category(db.Model):

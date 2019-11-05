@@ -1,5 +1,4 @@
 from db import db
-from pprint import pprint
 from sqlalchemy.dialects.mysql import BIGINT
 
 # item, order, quantity
@@ -39,6 +38,6 @@ class Class_products(db.Model):
         print("-------->PRODUCT: ", end='')
         print(product)
 
-       	if product!= None:
-	        db.session.delete(product)
-	        db.session.commit()
+        if product is not None:
+            db.session.delete(product)
+            db.session.commit()

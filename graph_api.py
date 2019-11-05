@@ -3,7 +3,7 @@ from app import PAGE_ACCESS_TOKEN
 from pprint import pprint  # FIXME: remove this line from prodution
 
 
-def user_info_json(sender_id): #this will be replaced by get user profile
+def user_info_json(sender_id):  # this will be replaced by get user profile
     """retrieves the json from graph api, which is used for other helper functions"""
 
     """whatever data needed should be added in the below API_URL"""
@@ -25,3 +25,6 @@ def get_last_name(sender_id):
     return data['last_name']
 
 
+# TODO: how to get basic location and phone number data?
+# TODO : should graph api should be used or the page functionality?
+ 

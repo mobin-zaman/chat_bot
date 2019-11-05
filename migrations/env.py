@@ -24,7 +24,8 @@ from models.categories import Category
 from models.products import Product
 from models.carts import Cart
 from models.messenger_user import MessengerUser
-target_metadata= [Category.metadata, Product.metadata,  MessengerUser.metadata, Cart.metadata]
+from models.order import Order
+target_metadata= [Category.metadata, Product.metadata,  MessengerUser.metadata, Cart.metadata, Order.metadata]
 # target_metadata = mymodel.Base.metadata
 
 from flask import current_app

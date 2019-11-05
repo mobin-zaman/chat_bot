@@ -12,6 +12,7 @@ from models.categories import Category
 from models.products import Product
 from models.messenger_user import MessengerUser
 from models.carts import Cart
+from models.order import Order
 """EOF"""
 
 
@@ -190,9 +191,11 @@ def show_product_description(payload, event):
 
     category_id = str(Product.get_category_id(selected_id))
 
+        
+    
     navigation = [
-        QuickReply("products", payload="SHOW_PRODUCTS|" + category_id),
-        QuickReply("categories", payload="SHOW_CATEGORIES")
+        QuickReply("explore categories", payload="SHOW_CATEGORIES"),
+        QuickReply("check cart", payload="CHECK_CART"),
     ]
 
     page.send(event.sender_id, Product.get_description(selected_id))
@@ -245,16 +248,17 @@ def template_cart_products(sender_id):
             QuickReply("explore categories", "SHOW_CATEGORIES")
         ]
         print("template_cart_products()")
-        page.send(sender_id, "your cart is empty, continue exploring",quick_replies=navigation)
+        page.send(sender_id, "your cart is empty, continue exploring",
+                  quick_replies=navigation)
 
     else:
         for product in products:
             print(product.product_id)
             print(product.quantity)
 
-            #refactor it :'(
+            # refactor it :'(
             product_ = Product.query.filter_by(id=product.product_id).first()
-            payload = "REMOVE_FROM_CART|"+str(product.product_id)
+            payload = "REMOVE_FROM_CART|" + str(product.product_id)
             print("========>", payload)
             template = Template.GenericElement(product_.name, subtitle=str(product_.price) + "৳ (x" + str(
                 product.quantity) + ")", image_url=product_.img_url,
@@ -280,7 +284,7 @@ def remove_from_cart(payload, event):
     cart = Cart.get_cart(event.sender_id)
 
     product_id = payload.split('|')[1]
-    print("========> PRODUCT_ID: ",product_id)
+    print("========> PRODUCT_ID: ", product_id)
     cart.remove_product(product_id)
 
     navigation = [
@@ -297,6 +301,73 @@ def show_informations(payload, event):
     page.send(event.sender_id, "okay fine", quick_replies=starter)
 
 
+@page.callback(["CHECKOUT"])
+def show_checkout(payload, event):
+    product_names, product_prices, product_quantites, product_img_urls, total_price, order_id = Order.get_receipt(
+        event.sender_id)
+    pprint(product_names)
+    pprint(product_prices)
+    pprint(product_quantites)
+    pprint(total_price)
+    pprint(order_id)
+
+    templates = []
+    for name, price, quantity, url in zip(product_names, product_prices, product_quantites, product_img_urls):
+        print("npe", name, price, quantity, url)
+        template = Template.ReceiptElement(title=name, quantity=str(
+            quantity), price=str(price * quantity), currency="BDT", image_url=url)
+        templates.append(template)
+
+    summary = Template.ReceiptSummary(total_cost=str(total_price))
+
+    page.send(event.sender_id, Template.Receipt(recipient_name=page.get_user_profile(event.sender_id)[
+              "first_name"], summary=summary, order_number=str(order_id), currency='BDT', elements=templates))
+    #[elements] was wrong
+
+    quick_replies = [QuickReply("Yes", payload="CONFIRM_ORDER"), QuickReply(
+        "No", payload="DISCARD_ORDER")]
+    page.send(event.sender_id, "confirm order?", quick_replies=quick_replies)
+
+
+@page.callback(["DISCARD_ORDER"])
+def discard_order(payload, event):
+
+    navigation = [
+        QuickReply("categories", payload="SHOW_CATEGORIES")
+    ]
+
+    page.send(event.sender_id, "Order cancelled: ")
+    page.send(event.sender_id, "You can continue navigation: ",
+              quick_replies=navigation)
+
+
+@page.callback(["CONFIRM_ORDER"])
+def accept_order(payload, event):
+
+    navigation = [
+        QuickReply("Cash On Delivery", payload="CASH_ON_DELIVERY"),
+        QuickReply("Payment Online", payload="PAYMENT_ONLINE")
+    ]
+    page.send(event.sender_id, "Select payment method",
+              quick_replies=navigation)
+
+
+@page.callback(["CASH_ON_DELIVERY"])
+def cash_on_delivery(payload,event):
+    print("Your product is on the way!")
+
+    navigation = [
+        QuickReply("categories", payload="SHOW_CATEGORIES")
+    ]
+
+    page.send(event.sender_id, "You can continue shopping: ",
+              quick_replies=navigation)
+
+@page.callback(["PAYMENT_ONLINE"])
+def payment_online(payload, event):
+
+    page.send(event.sender_id,"Redirecting to payment gateway")
+
 # @page.handle_message
 # def message_handler(event):
 #     """:type event: fbmq.Event"""
@@ -311,6 +382,7 @@ def show_informations(payload, event):
 #     """:type payload: fbmq.Payload"""
 #     print("complete")
 
+# testing mode on/webho
 # app.app_context().push()
 if __name__ == "__main__":
     db.init_app(app)
