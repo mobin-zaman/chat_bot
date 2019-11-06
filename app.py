@@ -69,9 +69,9 @@ def message_handler(event):
 """LIST OF QUICK REPLIES"""
 starter = [
     # explore means showing categories
-    QuickReply(title="explore!", payload='SHOW_CATEGORIES'),
+    QuickReply(title="Product Categories", payload='SHOW_CATEGORIES'),
     # show the location on a zone basis
-    QuickReply(title="get locations", payload='SHOW_INFO')
+    QuickReply(title="Get Locations", payload='SHOW_INFO')
 ]
 
 
@@ -89,8 +89,7 @@ def get_started(payload, event):
 
     # FIXME: use graph api to get username
 
-    page.send(sender_id, message="hello user")
-    page.send(sender_id, "options for you", quick_replies=starter)
+    page.send(sender_id, "Hello User", quick_replies=starter)
 
 
 def template_categories():
@@ -106,9 +105,11 @@ def template_categories():
                                                   image_url=category.img_url,
                                                   buttons=[
                                                       Template.ButtonPostBack(
-                                                          "show products", payload)
+                                                          "Show Products", payload)
                                                   ])
         templates.append(single_template)
+
+    templates.reverse()    
 
     return templates
 
@@ -123,7 +124,7 @@ def template_products(category_id):
                                                   buttons=[Template.ButtonPostBack("View Description",
                                                                                    payload="PRODUCT_DESCRIPTION|" + str(
                                                                                        product.id)),
-                                                           Template.ButtonPostBack("Add To Cart",
+                                                           Template.ButtonPostBack("Purchase",
                                                                                    payload="ADD_TO_CART|" + str(
                                                                                        product.id))])
         templates.append(single_template)
@@ -138,8 +139,8 @@ def show_products(payload, event):
     print("------------CATEGORY_ID: ", selected_id)
 
     navigation = [
-        QuickReply("explore categories", payload="SHOW_CATEGORIES"),
-        QuickReply("check cart", payload="CHECK_CART")
+        QuickReply("Back to Categories", payload="SHOW_CATEGORIES"),
+        QuickReply("View Cart", payload="CHECK_CART")
     ]
 
     templates = template_products(selected_id)
@@ -167,7 +168,7 @@ def show_categories(payload, event):
     """function to show categories"""
 
     print("show_categories()")
-    page.send(event.sender_id, "showing categories")
+    page.send(event.sender_id, "Showing Categories")
     templates = template_categories()
     template_dict = defaultdict(list)
     count = 0
@@ -231,8 +232,8 @@ def add_to_cart(payload, event):
     print("Exception happening here I think")
 
     navigation = [
-        QuickReply("categories", payload="SHOW_CATEGORIES"),
-        QuickReply("check cart", payload="CHECK_CART")
+        QuickReply("Shop More", payload="SHOW_CATEGORIES"),
+        QuickReply("View Cart", payload="CHECK_CART")
     ]
 
     page.send(event.sender_id, "added to cart", quick_replies=navigation)
@@ -262,7 +263,7 @@ def template_cart_products(sender_id):
             print("========>", payload)
             template = Template.GenericElement(product_.name, subtitle=str(product_.price) + "৳ (x" + str(
                 product.quantity) + ")", image_url=product_.img_url,
-                buttons=[Template.ButtonPostBack("remove from cart", payload), Template.ButtonPostBack("CHECKOUT!", "CHECKOUT")])
+                buttons=[Template.ButtonPostBack("Remove From Cart", payload), Template.ButtonPostBack("Checkout!", "CHECKOUT")])
             templates.append(template)
 
         page.send(sender_id, Template.Generic(templates))
@@ -346,7 +347,7 @@ def accept_order(payload, event):
 
     navigation = [
         QuickReply("Cash On Delivery", payload="CASH_ON_DELIVERY"),
-        QuickReply("Payment Online", payload="PAYMENT_ONLINE")
+        QuickReply("Online Payment", payload="PAYMENT_ONLINE")
     ]
     page.send(event.sender_id, "Select payment method",
               quick_replies=navigation)
@@ -354,7 +355,7 @@ def accept_order(payload, event):
 
 @page.callback(["CASH_ON_DELIVERY"])
 def cash_on_delivery(payload,event):
-    print("Your product is on the way!")
+    print("Your Product is on the way!")
 
     navigation = [
         QuickReply("categories", payload="SHOW_CATEGORIES")
